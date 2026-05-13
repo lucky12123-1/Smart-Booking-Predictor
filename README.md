@@ -48,7 +48,10 @@ pip install -r requirements.txt
 python main.py
 ```
 
-### 3. Search a Specific Sector
+### 3. Open the Frontend
+Open `index.html` in your browser to use the route search UI.
+
+### 4. Search a Specific Sector
 ```bash
 python main.py BOM DEL
 ```
@@ -58,7 +61,7 @@ If the sector is not available in the sample data, the script will show:
 No flight found for that sector: BOM → HYD
 ```
 
-### 4. View Results
+### 5. View Results
 The script will:
 - Generate 12 weeks of synthetic flight data for 4 routes
 - Analyze which day was cheapest most frequently

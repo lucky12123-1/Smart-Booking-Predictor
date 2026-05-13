@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Booking Predictor</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <main class="app-shell">
+        <section class="workspace" aria-labelledby="page-title">
+            <header class="topbar">
+                <div>
+                    <p class="eyebrow">Flight price intelligence</p>
+                    <h1 id="page-title">Smart Booking Predictor</h1>
+                </div>
+                <div class="status-pill" aria-label="Data source">
+                    <span></span>
+                    Sample data
+                </div>
+            </header>
+
+            <section class="search-band" aria-label="Sector search">
+                <form class="route-form" id="route-form">
+                    <label>
+                        From
+                        <input id="source" name="source" type="text" value="BOM" maxlength="3" autocomplete="off" aria-label="Source airport code">
+                    </label>
+                    <button class="swap-button" type="button" id="swap-button" aria-label="Swap source and destination" title="Swap route">
+                        <span aria-hidden="true">&#8644;</span>
+                    </button>
+                    <label>
+                        To
+                        <input id="destination" name="destination" type="text" value="DEL" maxlength="3" autocomplete="off" aria-label="Destination airport code">
+                    </label>
+                    <button class="primary-button" type="submit">Check</button>
+                </form>
+
+                <div class="quick-routes" aria-label="Available sample sectors" id="quick-routes"></div>
+            </section>
+
+            <section class="dashboard" aria-live="polite">
+                <div class="result-panel" id="result-panel"></div>
+                <div class="visual-panel">
+                    <canvas id="route-canvas" width="760" height="440" aria-label="Route and weekday price pattern visualization"></canvas>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
