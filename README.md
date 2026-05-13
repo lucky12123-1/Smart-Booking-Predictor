@@ -48,7 +48,17 @@ pip install -r requirements.txt
 python main.py
 ```
 
-### 3. View Results
+### 3. Search a Specific Sector
+```bash
+python main.py BOM DEL
+```
+
+If the sector is not available in the sample data, the script will show:
+```bash
+No flight found for that sector: BOM → HYD
+```
+
+### 4. View Results
 The script will:
 - Generate 12 weeks of synthetic flight data for 4 routes
 - Analyze which day was cheapest most frequently

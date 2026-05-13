@@ -39,3 +39,24 @@ def get_sample_routes():
     ]
     
     return routes
+
+
+def find_sample_route(source, destination):
+    """
+    Find a sample route by source and destination airport codes.
+
+    Args:
+        source: Source city/airport code
+        destination: Destination city/airport code
+
+    Returns:
+        Matching route dictionary, or None when the sector is unavailable
+    """
+    source = source.upper()
+    destination = destination.upper()
+
+    for route in get_sample_routes():
+        if route['from'] == source and route['to'] == destination:
+            return route
+
+    return None

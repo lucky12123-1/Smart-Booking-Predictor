@@ -4,9 +4,10 @@ Demonstrates finding the cheapest day to book flights based on historical data.
 """
 
 import pandas as pd
+import sys
 from datetime import datetime, timedelta
 import random
-from data.sample_routes import get_sample_routes
+from data.sample_routes import find_sample_route, get_sample_routes
 from models.predictor import RoutePricePredictor
 
 
@@ -56,6 +57,83 @@ def generate_synthetic_flight_data(route_type, start_date, days=84):
     return pd.DataFrame(data)
 
 
+def analyze_route(route, start_date):
+    """
+    Analyze a single route and return its booking recommendation.
+    """
+    route_name = f"{route['from']} → {route['to']}"
+    route_type = route['type']
+
+    print(f"\n📍 Route: {route_name}")
+    print(f"   Type: {route_type.upper()}")
+    print(f"   Analyzing 12 weeks of historical data...\n")
+
+    # Generate synthetic data
+    data = generate_synthetic_flight_data(route_type, start_date, days=84)
+
+    # Train predictor
+    predictor = RoutePricePredictor(route_name)
+    predictor.fit(data)
+
+    # Get prediction
+    prediction = predictor.predict_best_day()
+    detailed = predictor.get_detailed_analysis()
+
+    # Display results
+    best_day = prediction['best_day']
+    print(f"   ✅ BEST DAY TO BOOK: {best_day}")
+    print(f"   💡 {prediction['recommendation']}\n")
+
+    # Show ranking of all days
+    print("   Day Rankings (from cheapest to most expensive):")
+    for day in predictor.days_of_week:
+        if day in detailed['detailed_analysis']:
+            stats = detailed['detailed_analysis'][day]
+            position = stats['position']
+            times = stats['times_cheapest']
+            percentage = stats['percentage']
+
+            # Create visual indicator
+            if position == 1:
+                icon = "🥇"
+            elif position == 2:
+                icon = "🥈"
+            elif position == 3:
+                icon = "🥉"
+            else:
+                icon = "  "
+
+            print(f"   {icon} {position}. {day:10} - Cheapest {times:2} times ({percentage})")
+
+    return {
+        'route': route_name,
+        'best_day': best_day,
+        'type': route_type
+    }
+
+
+def get_requested_route(args):
+    """
+    Parse optional source and destination codes from command-line args.
+    """
+    if len(args) == 0:
+        return None
+
+    if len(args) != 2:
+        print("Usage: python main.py [SOURCE DESTINATION]")
+        print("Example: python main.py BOM DEL")
+        sys.exit(1)
+
+    source, destination = args[0].upper(), args[1].upper()
+    route = find_sample_route(source, destination)
+
+    if route is None:
+        print(f"No flight found for that sector: {source} → {destination}")
+        sys.exit(0)
+
+    return route
+
+
 def main():
     print("\n" + "="*60)
     print("SMART BOOKING PREDICTOR - POC")
@@ -64,6 +142,13 @@ def main():
     
     # Start date for synthetic data (12 weeks ago)
     start_date = datetime.now() - timedelta(days=84)
+
+    requested_route = get_requested_route(sys.argv[1:])
+
+    if requested_route is not None:
+        analyze_route(requested_route, start_date)
+        print("\n" + "="*60 + "\n")
+        return
     
     # Get sample routes
     routes = get_sample_routes()
@@ -72,55 +157,7 @@ def main():
     results = []
     
     for route in routes:
-        route_name = f"{route['from']} → {route['to']}"
-        route_type = route['type']
-        
-        print(f"\n📍 Route: {route_name}")
-        print(f"   Type: {route_type.upper()}")
-        print(f"   Analyzing 12 weeks of historical data...\n")
-        
-        # Generate synthetic data
-        data = generate_synthetic_flight_data(route_type, start_date, days=84)
-        
-        # Train predictor
-        predictor = RoutePricePredictor(route_name)
-        predictor.fit(data)
-        
-        # Get prediction
-        prediction = predictor.predict_best_day()
-        detailed = predictor.get_detailed_analysis()
-        
-        # Display results
-        best_day = prediction['best_day']
-        print(f"   ✅ BEST DAY TO BOOK: {best_day}")
-        print(f"   💡 {prediction['recommendation']}\n")
-        
-        # Show ranking of all days
-        print("   Day Rankings (from cheapest to most expensive):")
-        for day in predictor.days_of_week:
-            if day in detailed['detailed_analysis']:
-                stats = detailed['detailed_analysis'][day]
-                position = stats['position']
-                times = stats['times_cheapest']
-                percentage = stats['percentage']
-                
-                # Create visual indicator
-                if position == 1:
-                    icon = "🥇"
-                elif position == 2:
-                    icon = "🥈"
-                elif position == 3:
-                    icon = "🥉"
-                else:
-                    icon = "  "
-                
-                print(f"   {icon} {position}. {day:10} - Cheapest {times:2} times ({percentage})")
-        
-        results.append({
-            'route': route_name,
-            'best_day': best_day,
-            'type': route_type
-        })
+        results.append(analyze_route(route, start_date))
     
     # Summary
     print("\n" + "="*60)
